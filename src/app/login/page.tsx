@@ -1,28 +1,33 @@
 "use client";
 
   import { auth } from '@/lib/firebase';
-  import { signInWithEmailAndPassword } from 'firebase/auth'; // Import the method
+  import { signInWithEmailAndPassword } from 'firebase/auth';
   import { useRouter } from 'next/navigation';
   import { useState } from 'react';
 
   export default function LoginPage() {
-    const [email, setEmail] = useState('vendor@example.com'); // Pre-fill for testing
-    const [password, setPassword] = useState('vendor'); // Pre-fill for testing
+    const [email, setEmail] = useState('vendor@example.com');
+    const [password, setPassword] = useState('vendor');
     const [error, setError] = useState('');
     const router = useRouter();
 
     const handleLogin = async (e) => {
       e.preventDefault();
       try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password); // Use method with auth
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         const claims = (await user.getIdTokenResult()).claims;
         const role = claims.role;
-        const companyId = claims.companyId || 'acme-company'; // Default to acme-company
+        const companyId = claims.companyId || 'acme-company';
         router.push(`/${companyId}/${role}/dashboard`);
       } catch (err) {
-        setError(`Login failed: ${err.message} (Code: ${err.code})`);
-        console.error('Login Error:', err); // Debug
+        setError(`Login failed: ${err.message} (Code: ${err.code}) - Check if user exists or password matches 'vendor'`);
+        console.error('Login Error Details:', {
+          message: err.message,
+          code: err.code,
+          email,
+          password, // Log input for debugging
+        });
       }
     };
 
@@ -43,7 +48,7 @@
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
+            placeholder="Password (use 'vendor' from seed)"
             className="w-full p-2 mb-4 bg-gray-700 rounded"
             required
           />
