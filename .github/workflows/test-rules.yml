@@ -1,0 +1,48 @@
+name: Firestore Rules CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout repo
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # 2. Setup Node
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # 3. Install deps
+      - name: Install dependencies
+        run: npm install
+
+      # 4. Setup Firebase service account
+      - name: Create serviceAccountKey.json
+        run: |
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > serviceAccountKey.json
+
+      # 5. Setup environment variables
+      - name: Create .env file
+        run: |
+          echo "FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}" >> .env
+          echo "FIREBASE_AUTH_DOMAIN=${{ secrets.FIREBASE_AUTH_DOMAIN }}" >> .env
+          echo "FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}" >> .env
+          echo "FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }}" >> .env
+          echo "COMPANY_ID=acme-company" >> .env
+          echo "SUPERADMIN_UID=superadmin-fixed" >> .env
+          echo "ADMIN_UID=admin-fixed" >> .env
+          echo "VENDOR_UID=vendor-fixed" >> .env
+
+      # 6. Run reset + check-rules
+      - name: Run security tests
+        run: |
+          npm run reset
+          npm run check-rules

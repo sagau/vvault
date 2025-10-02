@@ -1,0 +1,74 @@
+"use client";
+
+import { onAuthStateChanged, User } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { createContext, useContext, useEffect, useState } from "react";
+
+// ✅ Make roles lowercase to match Firebase claims
+type Role = "superAdmin" | "admin" | "vendor" | "anonymous";
+
+interface AuthContextType {
+  user: User | null;
+  role: Role;
+  companyId?: string;
+  firebaseRole?: string; // keep raw role if you want to debug
+}
+
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  role: "anonymous",
+});
+
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [role, setRole] = useState<Role>("anonymous");
+  const [companyId, setCompanyId] = useState<string | undefined>(undefined);
+  const [firebaseRole, setFirebaseRole] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    return onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        setUser(firebaseUser);
+
+        // 🔑 fetch custom claims
+        const token = await firebaseUser.getIdTokenResult(true);
+        const claims = token.claims;
+
+        if (claims.role) {
+          const normalized = (claims.role as string).toLowerCase();
+          setFirebaseRole(claims.role as string); // keep raw for logging
+          if (
+            normalized === "superAdmin" ||
+            normalized === "admin" ||
+            normalized === "vendor"
+          ) {
+            setRole(normalized as Role);
+          } else {
+            setRole("anonymous");
+          }
+        } else {
+          setRole("anonymous");
+        }
+
+        if (claims.companyId) {
+          setCompanyId(claims.companyId as string);
+        } else {
+          setCompanyId(undefined);
+        }
+      } else {
+        setUser(null);
+        setRole("anonymous");
+        setCompanyId(undefined);
+        setFirebaseRole(undefined);
+      }
+    });
+  }, []);
+
+  return (
+    <AuthContext.Provider value={{ user, role, companyId, firebaseRole }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => useContext(AuthContext);

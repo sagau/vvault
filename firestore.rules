@@ -1,0 +1,117 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- Helper functions ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isSuperAdmin() {
+      return isSignedIn() && request.auth.token.role == "superAdmin";
+    }
+
+    function isAdmin(companyId) {
+      return isSignedIn()
+        && request.auth.token.role == "admin"
+        && request.auth.token.companyId == companyId;
+    }
+
+    function isVendor(companyId, vendorId) {
+      return isSignedIn()
+        && request.auth.token.role == "vendor"
+        && request.auth.token.companyId == companyId
+        && request.auth.uid == vendorId;
+    }
+
+    // --- Companies ---
+    match /companies/{companyId} {
+      allow get: if isSuperAdmin() || isAdmin(companyId);
+      allow list: if isSuperAdmin() || isAdmin(request.auth.token.companyId);
+      allow write: if isSuperAdmin() || isAdmin(companyId);
+    }
+
+    // --- Users ---
+    match /users/{userId} {
+      allow get: if isSignedIn();
+      allow list: if isSuperAdmin() || isAdmin(request.auth.token.companyId);
+      allow write: if isSuperAdmin()
+        || (isAdmin(request.resource.data.companyId) && request.auth.uid == userId);
+    }
+
+    // --- Vendors ---
+    match /vendors/{vendorId} {
+      allow get: if isSuperAdmin()
+        || isAdmin(resource.data.companyId)
+        || isVendor(resource.data.companyId, vendorId);
+
+      allow list: if isSuperAdmin()
+        || isAdmin(request.auth.token.companyId)
+        || (request.auth.token.role == "vendor" && request.auth.token.companyId != null);
+
+      allow write: if isSuperAdmin()
+        || isAdmin(request.resource.data.companyId)
+        || isVendor(request.resource.data.companyId, request.resource.data.vendorId);
+    }
+
+    // --- Files ---
+    match /files/{fileId} {
+      allow get: if isSuperAdmin()
+        || isAdmin(resource.data.companyId)
+        || isVendor(resource.data.companyId, resource.data.vendorId);
+
+      allow list: if isSuperAdmin()
+        || isAdmin(request.auth.token.companyId)
+        || (request.auth.token.role == "vendor" && request.auth.token.companyId != null);
+
+      allow create, update, delete: if isSuperAdmin()
+        || isAdmin(request.resource.data.companyId)
+        || isVendor(request.resource.data.companyId, request.resource.data.vendorId);
+    }
+
+    // --- Shares ---
+    match /shares/{shareId} {
+      allow get: if isSuperAdmin()
+        || isAdmin(resource.data.companyId)
+        || isVendor(resource.data.companyId, resource.data.vendorId);
+
+      allow list: if isSuperAdmin()
+        || isAdmin(request.auth.token.companyId)
+        || (request.auth.token.role == "vendor" && request.auth.token.companyId != null);
+
+      allow create, update, delete: if isSuperAdmin()
+        || isAdmin(request.resource.data.companyId)
+        || isVendor(request.resource.data.companyId, request.resource.data.vendorId);
+    }
+
+    // --- Jobs ---
+    match /jobs/{jobId} {
+      allow get: if isSuperAdmin()
+        || isAdmin(resource.data.companyId)
+        || isVendor(resource.data.companyId, resource.data.vendorId);
+
+      allow list: if isSuperAdmin()
+        || isAdmin(request.auth.token.companyId)
+        || (request.auth.token.role == "vendor" && request.auth.token.companyId != null);
+
+      allow create, update, delete: if isSuperAdmin()
+        || isAdmin(request.resource.data.companyId);
+    }
+
+    // --- Tasks ---
+    match /tasks/{taskId} {
+      allow get: if isSuperAdmin()
+        || isAdmin(resource.data.companyId)
+        || isVendor(resource.data.companyId, resource.data.vendorId);
+
+      allow list: if isSuperAdmin()
+        || isAdmin(request.auth.token.companyId)
+        || (request.auth.token.role == "vendor" && request.auth.token.companyId != null);
+
+      allow create, update, delete: if isSuperAdmin()
+        || isAdmin(request.resource.data.companyId)
+        || isVendor(request.resource.data.companyId, request.resource.data.vendorId);
+    }
+  }
+}

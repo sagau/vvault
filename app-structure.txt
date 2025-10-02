@@ -1,0 +1,23 @@
+Folder PATH listing for volume SSD-2
+Volume serial number is EC8D-8691
+D:\DOCUMENTS\VVAULT\STUDIO 2\VVAULT-APP\SRC\APP
+|   favicon.ico
+|   globals.css
+|   layout.tsx
+|   page.tsx
+|   
++---admin
+|       page.tsx
+|       
++---auth-debug
+|       page.tsx
+|       
++---login
+|       page.tsx
+|       
++---superadmin
+|       page.tsx
+|       
+\---vendor
+        page.tsx
+        
