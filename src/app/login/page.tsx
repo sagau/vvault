@@ -14,7 +14,7 @@
     const router = useRouter();
 
     const handleLogin = async (e) => {
-      e.preventDefault(); // Ensure no page refresh
+      e.preventDefault();
       setLoading(true);
       setError('');
       console.log('Attempting login with:', { email, password });
@@ -41,11 +41,11 @@
       if (redirectTo) {
         console.log('Attempting navigation to:', redirectTo);
         try {
-          window.location.href = redirectTo; // Force hard navigation
+          window.location.href = redirectTo;
           console.log('Navigation triggered via window.location.href');
         } catch (navErr) {
           console.error('Navigation failed with window.location.href:', navErr);
-          router.push(redirectTo); // Fallback to router.push
+          router.push(redirectTo);
           console.log('Falling back to router.push');
         }
       }

@@ -100,36 +100,47 @@ async function seed() {
   });
   console.log(`📂 Uploaded file: companies/${COMPANY_ID}/files/sample.pdf`);
 
-  // Share for vendor
-  await db.collection("shares").doc("share-fixed").set({
-    shareId: "share-fixed",
+  // Shares for vendor (subcollection)
+  const sharesRef = db.collection(`companies/${COMPANY_ID}/shares`);
+  await sharesRef.doc("share1").set({
+    shareId: "share1",
     companyId: COMPANY_ID,
     vendorId: VENDOR_UID,
     filePath: `companies/${COMPANY_ID}/shares/${VENDOR_UID}/welcome.txt`,
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
   });
-  console.log(`✅ Seeded share for vendor: ${VENDOR_UID}`);
+  console.log(`✅ Seeded share for vendor: ${COMPANY_ID}/shares/share1`);
 
-  // Job
-  await db.collection("jobs").doc("job-fixed").set({
-    jobId: "job-fixed",
+  // Jobs (subcollection)
+  const jobsRef = db.collection(`companies/${COMPANY_ID}/jobs`);
+  await jobsRef.doc("job1").set({
+    jobId: "job1",
     companyId: COMPANY_ID,
     vendorId: VENDOR_UID,
     title: "Demo Job",
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
   });
-  console.log(`✅ Seeded job: job-fixed`);
+  console.log(`✅ Seeded job: ${COMPANY_ID}/jobs/job1`);
 
-  // Task (top-level, independent)
-  await db.collection("tasks").doc("task-fixed").set({
-    taskId: "task-fixed",
+  // Tasks (subcollection)
+  const tasksRef = db.collection(`companies/${COMPANY_ID}/tasks`);
+  await tasksRef.doc("task1").set({
+    taskId: "task1",
     companyId: COMPANY_ID,
     vendorId: VENDOR_UID,
-    jobId: "job-fixed",
-    description: "Demo Task assigned directly to vendor",
+    title: "Task 1",
+    description: "First task",
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
   });
-  console.log(`✅ Seeded top-level task: task-fixed`);
+  await tasksRef.doc("task2").set({
+    taskId: "task2",
+    companyId: COMPANY_ID,
+    vendorId: VENDOR_UID,
+    title: "Task 2",
+    description: "Second task",
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+  console.log(`✅ Seeded tasks for ${COMPANY_ID}`);
 
   // --- NEGATIVE TEST DATA ---
   // Other company
@@ -153,7 +164,6 @@ async function seed() {
     taskId: "other-company-task",
     companyId: OTHER_COMPANY_ID,
     vendorId: "someone-else",
-    jobId: "other-company-job",
     description: "Forbidden Task",
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
   });
