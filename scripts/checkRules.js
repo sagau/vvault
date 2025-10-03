@@ -38,8 +38,8 @@ import dotenv from "dotenv";
   const SUPERADMIN_UID = process.env.SUPERADMIN_UID;
   const ADMIN_UID = process.env.ADMIN_UID;
   const VENDOR_UID = process.env.VENDOR_UID;
-  const OTHER_COMPANY_ID = "other-company"; // Match seed.js
-  const OTHER_VENDOR_ID = "other-vendor";   // Match seed.js
+  const OTHER_COMPANY_ID = "other-company";
+  const OTHER_VENDOR_ID = "other-vendor";
 
   console.log("[dotenv] Using IDs from .env:");
   console.log("   COMPANY_ID:    ", COMPANY_ID);
