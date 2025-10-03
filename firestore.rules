@@ -14,14 +14,14 @@ service cloud.firestore {
     function isVendor(companyId) {
       return isSignedIn() && request.auth.token.role == "vendor" && request.auth.token.companyId == companyId;
     }
-    function hasVendorIdFilter() {
-      return request.query.filters != null && request.query.filters.any(f, f.field.path == "vendorId" && f.value.stringValue == request.auth.uid);
+    function hasVendorFilter() {
+      return request.query.filters != null && request.query.filters.any((f) => f.field.path == "vendorId" && f.value.stringValue == request.auth.uid);
     }
 
     // --- Top-level collections ---
     match /vendors/{vendorId} {
-      allow read: if isSuperAdmin() || isAdmin(resource.data.companyId) || (isVendor(resource.data.companyId) && resource.data.vendorId == request.auth.uid);
-      allow write: if isSuperAdmin() || isAdmin(request.resource.data.companyId) || (isVendor(request.resource.data.companyId) && request.resource.data.vendorId == request.auth.uid);
+      allow read: if isSuperAdmin() || isAdmin(resource.data.companyId) || isVendor(resource.data.companyId);
+      allow write: if isSuperAdmin() || isAdmin(request.resource.data.companyId) || isVendor(request.resource.data.companyId);
     }
     match /users/{userId} {
       allow get: if isSignedIn();
@@ -37,17 +37,17 @@ service cloud.firestore {
     }
     match /companies/{companyId}/tasks/{taskId} {
       allow get: if isSuperAdmin() || isAdmin(companyId) || (isVendor(companyId) && resource.data.vendorId == request.auth.uid);
-      allow list: if isSuperAdmin() || isAdmin(companyId) || (isVendor(companyId) && hasVendorIdFilter());
+      allow list: if isSuperAdmin() || isAdmin(companyId) || (isVendor(companyId) && hasVendorFilter());
       allow create, update, delete: if isSuperAdmin() || isAdmin(companyId) || (isVendor(companyId) && resource.data.vendorId == request.auth.uid);
     }
     match /companies/{companyId}/jobs/{jobId} {
       allow get: if isSuperAdmin() || isAdmin(companyId) || (isVendor(companyId) && resource.data.vendorId == request.auth.uid);
-      allow list: if isSuperAdmin() || isAdmin(companyId) || (isVendor(companyId) && hasVendorIdFilter());
+      allow list: if isSuperAdmin() || isAdmin(companyId) || (isVendor(companyId) && hasVendorFilter());
       allow create, update, delete: if isSuperAdmin() || isAdmin(companyId);
     }
     match /companies/{companyId}/shares/{shareId} {
       allow get: if isSuperAdmin() || isAdmin(companyId) || (isVendor(companyId) && resource.data.vendorId == request.auth.uid);
-      allow list: if isSuperAdmin() || isAdmin(companyId) || (isVendor(companyId) && hasVendorIdFilter());
+      allow list: if isSuperAdmin() || isAdmin(companyId) || (isVendor(companyId) && hasVendorFilter());
       allow create, update, delete: if isSuperAdmin() || isAdmin(companyId) || (isVendor(companyId) && resource.data.vendorId == request.auth.uid);
     }
 
