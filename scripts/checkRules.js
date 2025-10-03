@@ -38,12 +38,16 @@ import dotenv from "dotenv";
   const SUPERADMIN_UID = process.env.SUPERADMIN_UID;
   const ADMIN_UID = process.env.ADMIN_UID;
   const VENDOR_UID = process.env.VENDOR_UID;
+  const OTHER_COMPANY_ID = "other-company"; // Match seed.js
+  const OTHER_VENDOR_ID = "other-vendor";   // Match seed.js
 
   console.log("[dotenv] Using IDs from .env:");
   console.log("   COMPANY_ID:    ", COMPANY_ID);
   console.log("   SUPERADMIN_UID:", SUPERADMIN_UID);
   console.log("   ADMIN_UID:     ", ADMIN_UID);
   console.log("   VENDOR_UID:    ", VENDOR_UID);
+  console.log("   OTHER_COMPANY_ID:", OTHER_COMPANY_ID);
+  console.log("   OTHER_VENDOR_ID:", OTHER_VENDOR_ID);
 
   //
   // 🔒 Helper: sign in user
@@ -206,7 +210,7 @@ import dotenv from "dotenv";
     try {
       console.log("   ✅ Admin can getDoc jobs/job1 →", (await getDoc(doc(db, "companies", COMPANY_ID, "jobs", "job1"))).data());
     } catch (err) {
-      console.log("   ❌ Admin getDoc jobs/job1 failed:", err.code);
+      console.error("   ❌ Admin getDoc jobs/job1 failed:", err.code);
     }
     try {
       ;(await getDocs(collection(db, "companies", COMPANY_ID, "jobs"))).forEach((d) =>
