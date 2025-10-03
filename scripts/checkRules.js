@@ -13,6 +13,8 @@ import dotenv from "dotenv";
     getDoc,
     collection,
     getDocs,
+    query,
+    where,
   } from "firebase/firestore";
   import {
     getStorage,
@@ -253,7 +255,8 @@ import dotenv from "dotenv";
       console.error("   ❌ Vendor getDoc jobs/job1 failed:", err.code);
     }
     try {
-      ;(await getDocs(collection(db, "companies", COMPANY_ID, "jobs"))).forEach((d) =>
+      const jobsQuery = query(collection(db, "companies", COMPANY_ID, "jobs"), where("vendorId", "==", VENDOR_UID));
+      ;(await getDocs(jobsQuery)).forEach((d) =>
         console.log("   ✅ Vendor can list job", d.id, "(data:", d.data(), ")")
       );
     } catch (err) {
@@ -265,7 +268,21 @@ import dotenv from "dotenv";
       console.error("   ❌ Vendor getDoc tasks/task1 failed:", err.code);
     }
     try {
-      ;(await getDocs(collection(db, "companies", COMPANY_ID, "shares"))).forEach((d) =>
+      const tasksQuery = query(collection(db, "companies", COMPANY_ID, "tasks"), where("vendorId", "==", VENDOR_UID));
+      ;(await getDocs(tasksQuery)).forEach((d) =>
+        console.log("   ✅ Vendor can read task", d.id, "(data:", d.data(), ")")
+      );
+    } catch (err) {
+      console.error("   ❌ Vendor list tasks failed:", err.code);
+    }
+    try {
+      console.log("   ✅ Vendor can getDoc shares/share1 →", (await getDoc(doc(db, "companies", COMPANY_ID, "shares", "share1"))).data());
+    } catch (err) {
+      console.error("   ❌ Vendor getDoc shares/share1 failed:", err.code);
+    }
+    try {
+      const sharesQuery = query(collection(db, "companies", COMPANY_ID, "shares"), where("vendorId", "==", VENDOR_UID));
+      ;(await getDocs(sharesQuery)).forEach((d) =>
         console.log("   ✅ Vendor can read share", d.id, "(data:", d.data(), ")")
       );
     } catch (err) {
