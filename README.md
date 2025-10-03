@@ -1,4 +1,4 @@
-# Grok – Role-Based SaaS Dashboard App
+# VVAULT – Role-Based SaaS Dashboard App
 
 Grok is a multi-tenant, role-based web application designed to provide secure dashboards for companies, admins, and vendors. The goal of the app is to combine security, collaboration, and scalability into a single streamlined platform.
 
